@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI by Claude</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#d97757"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="AI by Claude">
+<style>
+:root{--bg:#faf9f5;--panel:#fff;--ink:#1f1e1d;--muted:#73726c;--line:#e6e2d6;--user:#efece1;--accent:#d97757;--accent-h:#c6613f;--accent-ink:#fff;
+--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#262624;--panel:#30302e;--ink:#f0eee6;--muted:#a4a299;--line:#43413c;--user:#3a3935;--accent-h:#e58a6b}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#262624;--panel:#30302e;--ink:#f0eee6;--muted:#a4a299;--line:#43413c;--user:#3a3935;--accent-h:#e58a6b}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans)}
+button,select,input{font:inherit;color:inherit}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ov{position:fixed;inset:0;z-index:6;display:grid;place-items:center;background:var(--bg);padding:18px}
+.ov.m{background:rgba(0,0,0,.45)}
+.card{width:100%;max-width:380px;max-height:92vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px}
+.card h2{margin:0;font:500 1.4rem var(--serif)}
+.card p{margin:0;color:var(--muted);font-size:.92rem}
+.card input[type=text],.card input[type=password],.card select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.card label{display:flex;flex-direction:column;gap:4px;font-size:.9rem}
+.card textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);resize:vertical}
+.card label.ck{flex-direction:row;align-items:center;gap:8px}
+.btn{border:0;border-radius:12px;padding:10px 16px;cursor:pointer;background:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn:hover{background:var(--accent-h)}
+.btn.g{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.g:hover{background:var(--user)}
+.er{color:var(--accent-h);min-height:1.3em;font-size:.9rem}
+#app{height:100%;display:flex}
+#side{width:260px;flex:none;background:var(--panel);border-right:1px solid var(--line);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.ci{display:flex;border-radius:10px}
+.ci button:first-child{flex:1;text-align:left;background:none;border:0;padding:8px 10px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:10px}
+.ci button:last-child{background:none;border:0;color:var(--muted);cursor:pointer;padding:0 8px}
+.ci:hover,.ci.act{background:var(--user)}
+.wrap{flex:1;min-width:0;max-width:780px;margin:0 auto;height:100%;display:flex;flex-direction:column;padding:0 16px}
+header{display:flex;align-items:center;gap:10px;padding:14px 0 6px}
+header svg{width:24px;height:24px;color:var(--accent);flex:none}
+h1{margin:0;font:500 1.25rem var(--serif);flex:1}
+.ib{background:none;border:0;font-size:1.2rem;cursor:pointer;color:var(--muted);padding:4px 7px;border-radius:8px}
+.ib:hover,.ib.on{color:var(--accent)}
+#md{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:.88rem}
+#mb{display:none}
+#log{flex:1;overflow-y:auto;padding:14px 0 20px;display:flex;flex-direction:column;gap:20px}
+.row{display:flex;gap:12px;align-items:flex-start;animation:in .25s ease-out}
+.row.me{justify-content:flex-end}
+.ico{width:22px;height:22px;color:var(--accent);flex:none;margin-top:3px}
+.bubble{min-width:0;word-wrap:break-word}
+.bot .bubble{font:400 1.06rem/1.65 var(--serif);flex:1}
+.me .bubble{background:var(--user);padding:10px 16px;border-radius:20px;max-width:85%}
+.bubble div{white-space:pre-wrap}
+.bubble a{color:var(--accent-h)}
+.th{display:block;max-width:220px;max-height:220px;border-radius:12px;margin-bottom:8px}
+.code{position:relative;margin:8px 0;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.code pre{margin:0;padding:12px 14px;overflow-x:auto;font:.88rem/1.5 var(--mono)}
+.cb{display:flex;gap:6px;justify-content:flex-end;padding:6px 6px 0}
+.cb button{font-size:.75rem;background:var(--user);border:0;border-radius:8px;padding:3px 10px;cursor:pointer}
+.code pre.out{border-top:1px solid var(--line);color:var(--muted)}
+#art{position:fixed;top:0;right:0;bottom:0;width:min(620px,100%);z-index:5;background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);box-shadow:-8px 0 30px rgba(0,0,0,.2)}
+.ah{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.ah strong{flex:1;font:500 1.05rem var(--serif)}
+.ah button{background:none;border:1px solid var(--line);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:.85rem}
+.ah button.on{background:var(--user)}
+#afr{flex:1;border:0;background:#fff;width:100%}
+#ate{flex:1;border:0;padding:12px;font:.85rem/1.5 var(--mono);background:var(--bg);color:var(--ink);resize:none;width:100%}
+#pj{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.typing{display:inline-flex;gap:4px;padding-top:9px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:dot 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chips button{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:.9rem}
+.chips button:hover{background:var(--user)}
+#pv{display:flex;align-items:center;gap:6px;padding-bottom:6px}
+#pv img{height:54px;border-radius:10px}
+#pv button{background:none;border:0;cursor:pointer;color:var(--muted)}
+form#f{margin:0 0 16px;background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:8px 8px 8px 12px;display:flex;align-items:center;gap:4px;box-shadow:0 2px 14px rgba(0,0,0,.06)}
+form#f:focus-within{border-color:var(--accent)}
+#t{flex:1;min-width:0;background:none;border:0;outline:0;padding:8px 6px}
+.send{width:38px;height:38px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;flex:none}
+.send:hover{background:var(--accent-h)}
+.send svg{width:18px;height:18px}
+@keyframes dot{0%,60%,100%{opacity:.3}30%{opacity:1}}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (max-width:899px){#mb{display:block}#side{position:fixed;inset:0 auto 0 0;z-index:4;transform:translateX(-100%);transition:transform .2s}#side.open{transform:none;box-shadow:0 0 30px rgba(0,0,0,.25)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="star" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/></g></symbol></svg>
+
+<div id="auth" class="ov">
+  <form id="af" class="card">
+    <h2>AI by Claude</h2>
+    <p>Log ind eller opret en bruger. Alt gemmes kun i din egen browser.</p>
+    <input id="u" type="text" placeholder="Brugernavn" aria-label="Brugernavn" autocomplete="username">
+    <input id="p" type="password" placeholder="Adgangskode (mindst 4 tegn)" aria-label="Adgangskode" autocomplete="current-password">
+    <div id="ae" class="er" role="alert"></div>
+    <p id="aw" hidden></p>
+    <button class="btn" type="submit">Log ind</button>
+    <button class="btn g" type="button" id="reg">Opret bruger</button>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <aside id="side">
+    <button class="btn" id="nc" type="button">+ Ny chat</button>
+    <select id="pj" aria-label="Projekt"></select>
+    <button class="btn g" id="pe" type="button" hidden>Projektindstillinger</button>
+    <div id="cl"></div>
+  </aside>
+  <div class="wrap">
+    <header>
+      <button class="ib" id="mb" type="button" aria-label="Vis chats">☰</button>
+      <svg aria-hidden="true"><use href="#star"/></svg>
+      <h1>AI by Claude</h1>
+      <select id="md" aria-label="Model">
+        <option value="mini">Mini</option>
+        <option value="kode">Kode</option>
+        <option value="ai">Rigtig AI</option>
+        <option value="laer">Lærende</option>
+      </select>
+      <button class="ib" id="st" type="button" aria-label="Indstillinger">⚙</button>
+    </header>
+    <div id="log" aria-live="polite"></div>
+    <div id="pv"></div>
+    <form id="f">
+      <button class="ib" id="at" type="button" aria-label="Vedhæft billede">📎</button>
+      <input id="fi" type="file" accept="image/*" hidden>
+      <input id="t" type="text" placeholder="Skriv eller tal til mig" aria-label="Skriv en besked" autocomplete="off">
+      <button class="ib" id="mc" type="button" aria-label="Tal til mig">🎤</button>
+      <button class="send" type="submit" aria-label="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+    </form>
+  </div>
+</div>
+
+<div id="art" hidden>
+  <div class="ah"><strong>Artefakt</strong>
+    <button id="aV" class="on" type="button">Vis</button><button id="aC" type="button">Kode</button>
+    <button id="aD" type="button">Download</button><button id="aX" type="button" aria-label="Luk">✕</button></div>
+  <iframe id="afr" sandbox="allow-scripts" title="Artefakt"></iframe>
+  <textarea id="ate" hidden spellcheck="false" aria-label="Kode"></textarea>
+</div>
+<div id="pm" class="ov m" hidden>
+  <div class="card">
+    <h2>Projekt</h2>
+    <input id="pn" type="text" placeholder="Projektnavn" aria-label="Projektnavn">
+    <textarea id="pi" rows="3" placeholder="Instruktioner: hvordan skal AI’en svare i dette projekt?" aria-label="Instruktioner"></textarea>
+    <textarea id="pk" rows="5" placeholder="Viden: tekst, projektet skal bruge og lære af" aria-label="Viden"></textarea>
+    <button class="btn" id="pg" type="button">Gem</button>
+    <button class="btn g" id="pd" type="button">Slet projekt</button>
+    <button class="btn g" id="px" type="button">Luk</button>
+  </div>
+</div>
+<div id="set" class="ov m" hidden>
+  <div class="card">
+    <h2>Indstillinger</h2>
+    <p>Modellen „Rigtig AI“ kræver en sprogmodel: en lokal med Ollama (gratis og offline) eller en nøgle fra en udbyder med OpenAI-format.</p>
+    <label>Adresse<input id="au" type="text" placeholder="http://localhost:11434/v1"></label>
+    <label>API-nøgle (kan være tom ved Ollama)<input id="ak" type="password" autocomplete="off"></label>
+    <label>Modelnavn<input id="an" type="text" placeholder="llama3.2-vision"></label>
+    <p>Modellen „Lærende“ er en lille model, der lærer af tekst. Giv den noget at lære af. Den lærer også af det, du skriver til den.</p>
+    <textarea id="tx" rows="4" placeholder="Indsæt tekst, den skal lære af" aria-label="Træningstekst"></textarea>
+    <button class="btn g" id="tr" type="button">Træn på teksten</button>
+    <button class="btn g" id="tb" type="button">Træn på en tekstfil (.txt)</button>
+    <input id="tf" type="file" accept=".txt,text/plain" hidden>
+    <button class="btn g" id="tz" type="button">Nulstil modellen</button>
+    <div id="ts" class="er" style="color:var(--muted)"></div>
+    <label>Tone<select id="tn"><option value="neutral">Neutral</option><option value="venlig">Venlig</option><option value="formel">Formel</option></select></label>
+    <label>Svarlængde<select id="ln"><option value="kort">Kort</option><option value="normal">Normal</option><option value="lang">Udførlig</option></select></label>
+    <label class="ck"><input id="vc" type="checkbox"> Læs svar højt</label>
+    <button class="btn g" id="da" type="button">Slet alle mine chats</button>
+    <button class="btn g" id="lo" type="button">Log ud</button>
+    <button class="btn" id="sc" type="button">Luk</button>
+  </div>
+</div>
+
+<script>
+// AI by Claude: regelbaseret chatbot. Kører lokalt.
+const $ = id => document.getElementById(id);
+const MEM = {};
+const L = {
+  ok: (() => { try{ localStorage.setItem("abc_t", "1"); localStorage.removeItem("abc_t"); return true; }catch(e){ return false; } })(),
+  get(k, d){ try{ const v = JSON.parse(this.ok ? localStorage.getItem(k) : MEM[k]); return v == null ? d : v; }catch(e){ return d; } },
+  set(k, v){ try{ const s = JSON.stringify(v); if(this.ok) localStorage.setItem(k, s); else MEM[k] = s; }catch(e){} }
+};
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const norm = s => s.toLowerCase().replace(/[?!.,]/g, " ").replace(/\s+/g, " ").trim();
+const has = (s, ...w) => w.some(x => s.includes(x));
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+const STAR = '<svg class="ico" aria-hidden="true"><use href="#star"/></svg>';
+const DEF = () => ({chats:[], cur:null, projects:[], pid:null, notes:[], set:{model:"mini", tone:"neutral", len:"normal", voice:false, url:"http://localhost:11434/v1", key:"", name:"llama3.2-vision"}});
+let user = null, data = null, pend = null, memory = null, busy = false;
+const log = $("log"), t = $("t");
+const save = () => user && L.set("abc_d_" + user, data);
+const cur = () => data.chats.find(c => c.id === data.cur);
+
+/* ---------- Login (kun lokalt, ikke ægte sikkerhed) ---------- */
+async function hash(s){
+  try{
+    const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("abc:" + s));
+    return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
+  }catch(e){ return btoa(unescape(encodeURIComponent(s))); }
+}
+async function auth(create){
+  const u = $("u").value.trim().toLowerCase(), p = $("p").value, us = L.get("abc_u", {}), er = $("ae");
+  if(!u || p.length < 4){ er.textContent = "Skriv et brugernavn og en adgangskode på mindst 4 tegn."; return; }
+  const h = await hash(p);
+  if(create){
+    if(us[u]){ er.textContent = "Brugernavnet er allerede i brug."; return; }
+    us[u] = h; L.set("abc_u", us);
+  }else if(!us[u]){ er.textContent = "Brugeren findes ikke på den her enhed. Tryk på 'Opret bruger' først."; return; }
+  else if(us[u] !== h){ er.textContent = "Forkert adgangskode."; return; }
+  er.textContent = ""; $("p").value = ""; enter(u);
+}
+function enter(u){
+  user = u; memory = cap(u); L.set("abc_cur", u);
+  data = Object.assign(DEF(), L.get("abc_d_" + u, {}));
+  data.set = Object.assign(DEF().set, data.set);
+  $("auth").hidden = true; $("app").hidden = false;
+  if(data.set.model === "soeg") data.set.model = "mini";
+  $("md").value = data.set.model; $("tn").value = data.set.tone; $("ln").value = data.set.len;
+  $("vc").checked = data.set.voice;
+  $("au").value = data.set.url; $("ak").value = data.set.key; $("an").value = data.set.name;
+  corpus = L.get("abc_c_" + u, SEED); resetM(); train(corpus); modelStatus();
+  renderProjects();
+  if(!data.chats.length) newChat(); else { if(!cur()) data.cur = data.chats[0].id; list(); openChat(); }
+}
+function logout(){
+  L.set("abc_cur", null); user = null; data = null;
+  $("set").hidden = true; $("app").hidden = true; $("auth").hidden = false; log.innerHTML = "";
+}
+
+/* ---------- Chats ---------- */
+function newChat(){
+  const c = {id: Date.now(), title: "Ny chat", msgs: [], pid: data.pid || null};
+  data.chats.unshift(c); data.cur = c.id; save(); list(); openChat();
+}
+function list(){
+  const cl = $("cl"); cl.innerHTML = "";
+  data.chats.filter(c => !data.pid || c.pid === data.pid).forEach(c => {
+    const d = document.createElement("div"); d.className = "ci" + (c.id === data.cur ? " act" : "");
+    const b = document.createElement("button"); b.textContent = c.title;
+    b.onclick = () => { data.cur = c.id; save(); openChat(); };
+    const x = document.createElement("button"); x.textContent = "✕"; x.setAttribute("aria-label", "Slet chat");
+    x.onclick = () => {
+      data.chats = data.chats.filter(k => k.id !== c.id);
+      if(!data.chats.length) return newChat();
+      if(data.cur === c.id) data.cur = data.chats[0].id;
+      save(); openChat();
+    };
+    d.append(b, x); cl.appendChild(d);
+  });
+}
+function openChat(){
+  log.innerHTML = ""; const c = cur();
+  c.msgs.forEach(m => log.appendChild(node(m)));
+  if(!c.msgs.length) welcome();
+  log.scrollTop = log.scrollHeight; $("side").classList.remove("open"); list();
+}
+function node(m){
+  const r = document.createElement("div"); r.className = "row " + m.r;
+  if(m.r === "bot") r.insertAdjacentHTML("beforeend", STAR);
+  const b = document.createElement("div"); b.className = "bubble";
+  if(m.img){ const i = new Image(); i.src = m.img; i.className = "th"; i.alt = "Vedhæftet billede"; b.appendChild(i); }
+  const parts = String(m.t).split(/```(\w*)\n?([\s\S]*?)```/);
+  parts.forEach((p, i) => {
+    if(i % 3 === 1) return;
+    if(i % 3 === 2){
+      const lang = parts[i - 1].toLowerCase(), code = p.replace(/\n$/, "");
+      const w = document.createElement("div"); w.className = "code";
+      const cb = document.createElement("div"); cb.className = "cb";
+      const mk = (label, fn) => { const x = document.createElement("button"); x.type = "button"; x.textContent = label; x.onclick = () => fn(x); cb.appendChild(x); };
+      if(lang === "html" || /^\s*<(!doctype|html|body|div|style|svg|h1|button|canvas)/i.test(code)) mk("Vis", () => openArt(code));
+      if(lang === "js" || lang === "javascript") mk("Kør", () => { out.textContent = run(code); out.hidden = false; });
+      mk("Kopiér", x => { if(navigator.clipboard) navigator.clipboard.writeText(code); x.textContent = "Kopieret"; setTimeout(() => x.textContent = "Kopiér", 1200); });
+      const pre = document.createElement("pre"); pre.textContent = code;
+      const out = document.createElement("pre"); out.className = "out"; out.hidden = true;
+      w.append(cb, pre, out); b.appendChild(w);
+    }else if(p.trim()){
+      const d = document.createElement("div");
+      p.trim().split(/(https?:\/\/\S+)/).forEach((x, j) => {
+        if(j % 2){ const a = document.createElement("a"); a.href = x; a.target = "_blank"; a.rel = "noopener"; a.textContent = x; d.appendChild(a); }
+        else d.append(x);
+      });
+      b.appendChild(d);
+    }
+  });
+  r.appendChild(b); return r;
+}
+function welcome(){
+  const r = document.createElement("div"); r.className = "row bot"; r.id = "wel";
+  r.innerHTML = STAR + '<div class="bubble"><div></div></div>';
+  r.querySelector(".bubble div").textContent = "Hej " + cap(user) + "! Jeg er AI by Claude. Hvad vil du have hjælp til?";
+  const c = document.createElement("div"); c.className = "chips";
+  ["Hjælp", "Vis en løkke i Python", "Lav en tæller", "Fortæl en joke"].forEach(q => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = q; b.onclick = () => send(q); c.appendChild(b);
+  });
+  r.lastChild.appendChild(c); log.appendChild(r);
+}
+function add(m){ cur().msgs.push(m); log.appendChild(node(m)); log.scrollTop = log.scrollHeight; }
+
+/* ---------- Svar ---------- */
+const jokes = ["Hvad kalder man en bjørn uden tænder? En gummibjørn.", "Hvorfor gik skeletten ikke til festen? Den havde ingen at gå med.", "Hvorfor tog programmøren briller på? Fordi han ikke kunne C#.", "Der er 10 slags mennesker: dem der forstår binære tal, og dem der ikke gør.", "Hvorfor er computeren aldrig sulten? Den har altid nogle bytes."];
+const facts = ["Mælkevejen indeholder hundredvis af milliarder stjerner.", "Et menneske blinker omkring femten gange i minuttet.", "Sommerfugle smager med fødderne.", "Danmark har over 400 øer, men kun omkring 70 af dem er beboede.", "Honning bliver aldrig dårlig, hvis den opbevares tæt lukket.", "Blæksprutter har tre hjerter.", "Lego er opfundet i Billund. Navnet kommer fra de danske ord „leg godt“."];
+const HELP = "Jeg kan:\n• snakke lidt, huske dit navn og fortælle joks og fakta\n• sige klokken og datoen og regne simple stykker\n• omregne enheder, procent, kvadratrod og primtal, slå terning og mønt og finde tilfældige tal\n• huske noter („husk at købe mælk“), sætte timer („timer på 5 minutter“), quiz og små oversættelser („hvad er hund på engelsk“)\n• vise kodeeksempler: „vis en løkke i Python“\n• køre JavaScript: „/kør 2+3“\n• lave små apps som artefakter: „lav en tæller“, „lav et ur“, „lav en lommeregner“, „lav en huskeliste“\n• kigge på et billede (størrelse og farve)\n• samle chats i projekter med egne instruktioner og viden\n• lytte, hvis du trykker på mikrofonen\nVælg „Rigtig AI“ øverst for en ægte sprogmodel (kræver opsætning i ⚙).\n„Lærende“ er en lille model, der lærer af tekst, du giver den i ⚙.\nSkift model øverst og tilpas mig i ⚙.";
+const S = {
+  hej:{py:'print("Hej verden!")', js:'console.log("Hej verden!");'},
+  løkke:{py:'for i in range(5):\n    print(i)', js:'for (let i = 0; i < 5; i++) {\n  console.log(i);\n}'},
+  funktion:{py:'def hils(navn):\n    return "Hej " + navn\n\nprint(hils("Anna"))', js:'function hils(navn) {\n  return "Hej " + navn;\n}\n\nconsole.log(hils("Anna"));'},
+  liste:{py:'frugt = ["æble", "pære"]\nfrugt.append("banan")\nprint(frugt)', js:'const frugt = ["æble", "pære"];\nfrugt.push("banan");\nconsole.log(frugt);'},
+  betingelse:{py:'alder = 20\nif alder >= 18:\n    print("Voksen")\nelse:\n    print("Barn")', js:'const alder = 20;\nif (alder >= 18) {\n  console.log("Voksen");\n} else {\n  console.log("Barn");\n}'},
+  sortér:{py:'tal = [3, 1, 2]\ntal.sort()\nprint(tal)', js:'const tal = [3, 1, 2];\ntal.sort((a, b) => a - b);\nconsole.log(tal);'}
+};
+Object.assign(S, {
+  klasse:{py:'class Hund:\n    def __init__(self, navn):\n        self.navn = navn\n\n    def gø(self):\n        print(self.navn + " siger vuf")\n\nHund("Bamse").gø()', js:'class Hund {\n  constructor(navn) {\n    this.navn = navn;\n  }\n  gø() {\n    console.log(this.navn + " siger vuf");\n  }\n}\n\nnew Hund("Bamse").gø();'},
+  ordbog:{py:'person = {"navn": "Anna", "alder": 30}\nperson["by"] = "Aarhus"\nfor nøgle, værdi in person.items():\n    print(nøgle, værdi)', js:'const person = {navn: "Anna", alder: 30};\nperson.by = "Aarhus";\nfor (const [nøgle, værdi] of Object.entries(person)) {\n  console.log(nøgle, værdi);\n}'},
+  fejl:{py:'try:\n    tal = int("abc")\nexcept ValueError:\n    print("Det er ikke et tal")', js:'try {\n  JSON.parse("ikke json");\n} catch (e) {\n  console.log("Fejl: " + e.message);\n}'},
+  fibonacci:{py:'def fib(n):\n    return n if n < 2 else fib(n - 1) + fib(n - 2)\n\nprint([fib(i) for i in range(10)])', js:'const fib = n => n < 2 ? n : fib(n - 1) + fib(n - 2);\nconsole.log(Array.from({length: 10}, (_, i) => fib(i)));'},
+  tilfældig:{py:'import random\nprint(random.randint(1, 6))\nprint(random.choice(["rød", "grøn", "blå"]))', js:'console.log(Math.floor(Math.random() * 6) + 1);\nconsole.log(["rød", "grøn", "blå"][Math.floor(Math.random() * 3)]);'},
+  tekst:{py:'tekst = "Hej verden"\nprint(tekst.upper())\nprint(tekst.replace("verden", "Danmark"))\nprint(tekst[::-1])', js:'const tekst = "Hej verden";\nconsole.log(tekst.toUpperCase());\nconsole.log(tekst.replace("verden", "Danmark"));\nconsole.log([...tekst].reverse().join(""));'},
+  fil:{py:'with open("tekst.txt", "w", encoding="utf-8") as f:\n    f.write("Hej fil")\n\nwith open("tekst.txt", encoding="utf-8") as f:\n    print(f.read())', js:'const fs = require("fs");\nfs.writeFileSync("tekst.txt", "Hej fil");\nconsole.log(fs.readFileSync("tekst.txt", "utf8"));'},
+  api:{py:'import requests\nsvar = requests.get("https://api.github.com")\nprint(svar.status_code)\nprint(svar.json())', js:'fetch("https://api.github.com")\n  .then(r => r.json())\n  .then(data => console.log(data));'},
+  select:{sql:'SELECT navn, alder\nFROM personer\nWHERE alder > 18\nORDER BY navn;'},
+  insert:{sql:'INSERT INTO personer (navn, alder)\nVALUES ("Anna", 30);'},
+  join:{sql:'SELECT p.navn, o.beløb\nFROM personer p\nJOIN ordrer o ON o.person_id = p.id;'},
+  knap:{html:'<button onclick="alert(\'Hej!\')">Tryk her</button>'},
+  formular:{html:'<form>\n  <label>Navn <input name="navn"></label>\n  <button type="submit">Send</button>\n</form>'},
+  flexbox:{css:'.boks {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  gap: 12px;\n}'},
+  git:{sh:'git init\ngit add .\ngit commit -m "Første commit"\ngit branch -M main\ngit push -u origin main'}
+});
+const CODE = /\bkode\b|python|javascript|\bjs\b|løkke|\bloop\b|\bfunktion\b|\barray\b|sortér|sorter|hej verden|betingelse|\bsql\b|\bhtml\b|\bcss\b|\bgit\b|\bbash\b|\bklasse\b|\bclass\b|ordbog|fibonacci|rekursion|fejlhåndtering|\bapi\b|flexbox|formular/;
+function kode(s){
+  if(!CODE.test(s)) return null;
+  const lg = /\bsql\b/.test(s) ? "sql" : /\bhtml\b/.test(s) ? "html" : /\bcss\b/.test(s) ? "css" : /\bgit\b|\bbash\b|terminal/.test(s) ? "sh" : /javascript|\bjs\b/.test(s) ? "js" : "py";
+  const T = [["hej", /hej verden|hello/], ["løkke", /løkke|loop/], ["funktion", /\bfunktion\b/], ["liste", /\bliste\b|\barray\b/], ["betingelse", /betingelse|\bif\b|\bhvis\b/], ["sortér", /sortér|sorter/], ["klasse", /\bklasse\b|\bclass\b/], ["ordbog", /ordbog|dict|objekt/], ["fejl", /fejl|try|except|catch/], ["fibonacci", /fibonacci|rekursion/], ["tilfældig", /tilfældig|random/], ["tekst", /\btekst\b|\bstreng\b|string/], ["fil", /\bfil\b/], ["api", /\bapi\b|fetch|requests/], ["select", /select|forespørgsel/], ["insert", /insert|indsæt/], ["join", /\bjoin\b/], ["knap", /\bknap\b/], ["formular", /formular|\bform\b/], ["flexbox", /flexbox|centrer|centrér/], ["git", /\bgit\b/]];
+  const hits = T.filter(x => x[1].test(s) && S[x[0]]);
+  let k = hits.find(x => S[x[0]][lg]);
+  if(!k && (lg === "py" || lg === "js")) k = hits.find(x => S[x[0]].py || S[x[0]].js);
+  if(!k) return "Jeg kan vise eksempler på: hej verden, løkke, funktion, liste, betingelse, sortering, klasse, ordbog, fejlhåndtering, fibonacci, tilfældige tal, tekst, filer og API (Python/JavaScript), select, insert og join (SQL), knap og formular (HTML), flexbox (CSS) og git. Skriv fx „vis en klasse i Python“.";
+  const L2 = S[k[0]][lg] ? lg : (S[k[0]].py ? "py" : "js");
+  const name = {py:"Python", js:"JavaScript", sql:"SQL", html:"HTML", css:"CSS", sh:"kommandolinjen"}[L2];
+  const tag = {py:"python", js:"javascript", sql:"sql", html:"html", css:"css", sh:"bash"}[L2];
+  return "Her er et eksempel i " + name + ":\n```" + tag + "\n" + S[k[0]][L2] + "\n```" + (L2 === "js" ? "\nTryk på Kør for at køre det her i chatten." : "");
+}
+const HEAD = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">';
+const TPL = {
+  tæller: HEAD + `<body style="font-family:system-ui;text-align:center;padding:40px"><h1 id="n" style="font-size:4rem">0</h1><button onclick="n.textContent=+n.textContent+1" style="font-size:1.2rem;padding:10px 18px">+1</button> <button onclick="n.textContent=0" style="font-size:1.2rem;padding:10px 18px">Nulstil</button></body>`,
+  ur: HEAD + `<body style="font-family:system-ui;display:grid;place-items:center;height:100vh;margin:0"><h1 id="t" style="font-size:18vw;margin:0"></h1><script>setInterval(()=>t.textContent=new Date().toLocaleTimeString("da-DK"),500)<\/script></body>`,
+  huskeliste: HEAD + `<body style="font-family:system-ui;max-width:420px;margin:30px auto;padding:0 16px"><h2>Huskeliste</h2><input id="i" placeholder="Skriv noget" style="padding:8px;width:65%"> <button onclick="if(i.value){const l=document.createElement('li');l.textContent=i.value;l.onclick=()=>l.remove();u.appendChild(l);i.value=''}" style="padding:8px">Tilføj</button><ul id="u"></ul><p style="color:gray">Tryk på en opgave for at fjerne den.</p></body>`,
+  lommeregner: HEAD + `<body style="font-family:system-ui;max-width:280px;margin:30px auto"><input id="d" readonly style="width:100%;font-size:1.6rem;text-align:right;padding:8px"><div id="k" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px"></div><script>"789/456*123-0.C=+()%".split("").forEach(c=>{const b=document.createElement("button");b.textContent=c;b.style.cssText="font-size:1.3rem;padding:12px";b.onclick=()=>{if(c=="C")d.value="";else if(c=="="){try{d.value=eval(d.value)}catch(e){d.value="Fejl"}}else d.value+=c};k.appendChild(b)})<\/script></body>`
+};
+Object.assign(TPL, {
+  terning: HEAD + `<body style="font-family:system-ui;text-align:center;padding:40px"><div id="d" style="font-size:7rem">🎲</div><button onclick="d.textContent=['⚀','⚁','⚂','⚃','⚄','⚅'][Math.floor(Math.random()*6)]" style="font-size:1.2rem;padding:10px 18px">Slå</button></body>`,
+  stopur: HEAD + `<body style="font-family:system-ui;text-align:center;padding:40px"><h1 id="t" style="font-size:4rem">0,0</h1><button id="b" style="font-size:1.2rem;padding:10px 18px">Start</button> <button onclick="location.reload()" style="font-size:1.2rem;padding:10px 18px">Nulstil</button><script>let r=0,i,s;b.onclick=()=>{if(r){clearInterval(i);r=0;b.textContent="Start"}else{s=Date.now()-(+t.dataset.v||0);r=1;b.textContent="Stop";i=setInterval(()=>{const v=Date.now()-s;t.dataset.v=v;t.textContent=(v/1000).toFixed(1).replace(".",",")},100)}}<\/script></body>`,
+  tegneplade: HEAD + `<body style="margin:0;font-family:system-ui"><canvas id="c" style="touch-action:none;display:block;background:#fff"></canvas><button onclick="x.clearRect(0,0,c.width,c.height)" style="padding:8px;margin:6px">Ryd</button><input type="color" id="f" value="#d97757"><script>const x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight*.88;let d=0;c.onpointerdown=e=>{d=1;x.beginPath();x.moveTo(e.offsetX,e.offsetY)};c.onpointermove=e=>{if(d){x.strokeStyle=f.value;x.lineWidth=4;x.lineCap="round";x.lineTo(e.offsetX,e.offsetY);x.stroke()}};c.onpointerup=()=>d=0<\/script></body>`
+});
+function lav(s){
+  if(!/\b(lav|byg|skab|giv mig)\b/.test(s)) return null;
+  const k = /tæller/.test(s) ? "tæller" : /lommeregner/.test(s) ? "lommeregner" : /huskeliste|to-?do/.test(s) ? "huskeliste" : /terning/.test(s) ? "terning" : /stopur/.test(s) ? "stopur" : /tegneplade|maleplade/.test(s) ? "tegneplade" : /\bur(et)?\b|klokke/.test(s) ? "ur" : null;
+  if(!k) return /\b(app|side|hjemmeside|spil|program)\b/.test(s) ? "Jeg kan kun lave færdige skabeloner: tæller, ur, huskeliste, lommeregner, terning, stopur og tegneplade. Vil du have noget friere, så vælg „Rigtig AI“ og beskriv, hvad du vil have." : null;
+  return "Her er " + (k === "ur" || k === "stopur" ? "et " : "en ") + k + ". Tryk på Vis for at åbne den som artefakt, hvor du også kan ændre koden.\n```html\n" + TPL[k] + "\n```";
+}
+function run(code){
+  const out = [], c = {log: (...a) => out.push(a.map(String).join(" "))};
+  try{
+    let f; try{ f = new Function("console", "return (" + code + "\n)"); }catch(e){ f = new Function("console", code); }
+    const r = f(c); if(r !== undefined) out.push(String(r));
+  }catch(e){ out.push("Fejl: " + e.message); }
+  return out.join("\n") || "(intet output)";
+}
+function math(s){
+  const m = s.replace(/,/g, ".").match(/(-?\d+(?:\.\d+)?)\s*(\+|-|\*|x|gange|plus|minus|\/|delt med|divideret med)\s*(-?\d+(?:\.\d+)?)/);
+  if(!m) return null;
+  const a = parseFloat(m[1]), b = parseFloat(m[3]), op = m[2]; let r;
+  if(op === "+" || op === "plus") r = a + b;
+  else if(op === "-" || op === "minus") r = a - b;
+  else if(["*", "x", "gange"].includes(op)) r = a * b;
+  else { if(b === 0) return "Man kan ikke dividere med nul."; r = a / b; }
+  return "Det giver " + String(Math.round(r * 1e6) / 1e6).replace(".", ",") + ".";
+}
+let quiz = null;
+const QZ = [["Hvad er hovedstaden i Danmark?", /k[øo]benhavn/, "København"], ["Hvor mange ben har en edderkop?", /\b8\b|otte/, "otte"], ["Hvad er 7 gange 8?", /\b56\b|seksoghalvtreds/, "56"], ["Hvilken planet er tættest på solen?", /merkur/, "Merkur"], ["Hvor mange dage er der i en uge?", /\b7\b|syv/, "syv"], ["Hvor mange minutter er der i en time?", /\b60\b|tres/, "tres"], ["Hvilket dyr kaldes junglens konge?", /l[øo]ve/, "løven"], ["Hvad er den kemiske formel for vand?", /h2o/, "H2O"]];
+const UN = [[/(\d+(?:\.\d+)?)\s*(?:km|kilometer)\s*(?:i|til)\s*miles?/, v => v * .621371, "miles"], [/(\d+(?:\.\d+)?)\s*miles?\s*(?:i|til)\s*(?:km|kilometer)/, v => v * 1.60934, "km"], [/(\d+(?:\.\d+)?)\s*(?:kg|kilo)\s*(?:i|til)\s*(?:pund|lbs)/, v => v * 2.20462, "pund"], [/(\d+(?:\.\d+)?)\s*(?:pund|lbs)\s*(?:i|til)\s*(?:kg|kilo)/, v => v * .453592, "kg"], [/(\d+(?:\.\d+)?)\s*(?:celsius|grader)\s*(?:i|til)\s*fahrenheit/, v => v * 9 / 5 + 32, "°F"], [/(\d+(?:\.\d+)?)\s*fahrenheit\s*(?:i|til)\s*celsius/, v => (v - 32) * 5 / 9, "°C"], [/(\d+(?:\.\d+)?)\s*(?:cm|centimeter)\s*(?:i|til)\s*(?:tommer|inches)/, v => v / 2.54, "tommer"], [/(\d+(?:\.\d+)?)\s*(?:tommer|inches)\s*(?:i|til)\s*(?:cm|centimeter)/, v => v * 2.54, "cm"]];
+const DICT = {hund:"dog", kat:"cat", hus:"house", bil:"car", vand:"water", mad:"food", tak:"thank you", hej:"hello", ven:"friend", bog:"book", sol:"sun", måne:"moon", skole:"school", kaffe:"coffee", brød:"bread", glad:"happy", stor:"big", lille:"small", dag:"day", nat:"night", kærlighed:"love", telefon:"phone", æble:"apple", mælk:"milk", fisk:"fish", hest:"horse"};
+const dagTil = (mo, d) => {
+  const n = new Date(), i = new Date(n.getFullYear(), n.getMonth(), n.getDate()), t = new Date(n.getFullYear(), mo, d);
+  if(t < i) t.setFullYear(n.getFullYear() + 1);
+  return Math.round((t - i) / 864e5);
+};
+function ring(c, label){
+  const m = {r: "bot", t: "⏰ Din timer på " + label + " er færdig!"};
+  c.msgs.push(m); save();
+  if(cur() && cur().id === c.id){ log.appendChild(node(m)); log.scrollTop = log.scrollHeight; }
+  speak(m.t);
+}
+function extra(s, raw){
+  const n = raw.toLowerCase().replace(/(\d),(\d)/g, "$1.$2"), fmt = x => String(Math.round(x * 100) / 100).replace(".", ",");
+  if(quiz){
+    if(quiz.a.test(n)){ quiz = null; return "Rigtigt! 🎉 Skriv „quiz“ for et nyt spørgsmål."; }
+    if(has(s, "giv op")){ const a = quiz.t; quiz = null; return "Svaret er: " + a + ". Skriv „quiz“ for et nyt spørgsmål."; }
+    if(s.split(" ").length <= 3 && !has(s, "quiz", "hjælp", "klokken", "dato")) return "Det er ikke helt rigtigt. Prøv igen, eller skriv „giv op“.";
+  }
+  if(has(s, "quiz", "stil mig et spørgsmål")){ const q = pick(QZ); quiz = {a: q[1], t: q[2]}; return "Spørgsmål: " + q[0]; }
+  for(const [re, f, u] of UN){ const m = n.match(re); if(m) return m[1].replace(".", ",") + " svarer til " + fmt(f(parseFloat(m[1]))) + " " + u + "."; }
+  let m = n.match(/(\d+(?:\.\d+)?)\s*(?:procent|%)\s*af\s*(\d+(?:\.\d+)?)/); if(m) return "Det giver " + fmt(m[1] * m[2] / 100) + ".";
+  if(/terning/.test(n)) return "Du slog " + (1 + Math.floor(Math.random() * 6)) + ".";
+  if(/mønt|plat eller krone|slå plat/.test(n)) return "Det blev " + pick(["plat", "krone"]) + ".";
+  m = n.match(/tilfældigt tal(?: mellem (\d+) og (\d+))?/); if(m){ const a = +(m[1] || 1), b = +(m[2] || 100); return "Dit tilfældige tal er " + (Math.min(a, b) + Math.floor(Math.random() * (Math.abs(b - a) + 1))) + "."; }
+  m = n.match(/dage til (jul|juleaften|nytår)/); if(m){ const d = m[1] === "nytår" ? dagTil(0, 1) : dagTil(11, 24); return d ? "Der er " + d + " dage til " + m[1] + "." : "Det er i dag!"; }
+  m = n.match(/kvadratrod(?:en)? af (\d+(?:\.\d+)?)/); if(m) return "Kvadratroden af " + m[1].replace(".", ",") + " er " + fmt(Math.sqrt(+m[1])) + ".";
+  m = n.match(/er (\d+) et primtal/); if(m){ const v = +m[1]; let pr = v > 1; for(let i = 2; i * i <= v; i++) if(v % i === 0){ pr = false; break; } return v + (pr ? " er et primtal." : " er ikke et primtal."); }
+  m = raw.match(/^\s*husk(?: at)?\s+(.+)/i); if(m){ data.notes.push(m[1].trim()); save(); return "Okay, jeg har husket: " + m[1].trim(); }
+  if(/hvad har jeg husket|mine noter|vis noter/.test(n)) return data.notes.length ? "Du har bedt mig huske:\n" + data.notes.map((x, i) => (i + 1) + ". " + x).join("\n") : "Du har ikke bedt mig huske noget endnu. Skriv fx „husk at købe mælk“.";
+  if(/glem (alt|alle noter)|slet (mine )?noter/.test(n)){ data.notes = []; save(); return "Jeg har glemt alle dine noter."; }
+  m = n.match(/timer(?: på)? (\d+) (sekund|minut)/); if(m){ const v = +m[1], ms = v * (m[2] === "minut" ? 60000 : 1000), c = cur(), label = v + " " + (m[2] === "minut" ? (v === 1 ? "minut" : "minutter") : (v === 1 ? "sekund" : "sekunder")); setTimeout(() => ring(c, label), ms); return "Timer sat på " + label + ". Hold siden åben, så giver jeg besked."; }
+  m = n.match(/hvad er (.+?) på (engelsk|dansk)/) || n.match(/oversæt (.+?) til (engelsk|dansk)/);
+  if(m){ const w = m[1].trim(), r = m[2] === "engelsk" ? DICT[w] : Object.keys(DICT).find(k => DICT[k] === w); return r ? "„" + w + "“ er „" + r + "“ på " + m[2] + "." : "Det ord kender jeg ikke endnu."; }
+  m = raw.match(/^\s*vend (.+?) om\s*$/i); if(m) return [...m[1]].reverse().join("");
+  m = raw.match(/^\s*tæl ord(?:ene)?(?: i)?:?\s+(.+)/i); if(m) return "Der er " + m[1].trim().split(/\s+/).length + " ord.";
+  return null;
+}
+function rule(s, raw){
+  const x = extra(s, raw || s); if(x) return x;
+  const nm = s.match(/(?:jeg hedder|mit navn er)\s+([a-zæøå]+)/);
+  if(nm){ memory = cap(nm[1]); return "Hyggeligt at møde dig, " + memory + "!"; }
+  if(has(s, "hvad hedder jeg")) return "Du hedder " + memory + ".";
+  const m = math(s); if(m) return m;
+  if(has(s, "hjælp", "hvad kan du")) return HELP;
+  if(has(s, "klokken", "tid er det")) return "Klokken er " + new Date().toLocaleTimeString("da-DK", {hour:"2-digit", minute:"2-digit"}) + ".";
+  if(has(s, "dato", "hvilken dag", "hvad dag")) return "I dag er det " + new Date().toLocaleDateString("da-DK", {weekday:"long", day:"numeric", month:"long", year:"numeric"}) + ".";
+  if(has(s, "joke", "vittighed")) return pick(jokes);
+  if(has(s, "faktum", "fakta", "fortæl mig noget")) return pick(facts);
+  if(has(s, "hvem er du", "hvad er du", "hvad hedder du")) return "Jeg hedder AI by Claude. Jeg er et lille program med faste regler, der kører hos dig.";
+  if(has(s, "hvem har lavet", "hvem lavede", "hvem skabte")) return "Claude, en AI fra Anthropic, har skrevet min kode. Ellers har jeg ikke noget med Claude at gøre.";
+  if(has(s, "hvordan har du det", "hvordan går det", "hvad så")) return pick(["Jeg har det fint, tak! Hvad med dig?", "Det går godt her. Hvad kan jeg hjælpe med?"]);
+  if(/\btak\b/.test(s)) return pick(["Det var så lidt!", "Selv tak!", "Velbekomme."]);
+  if(has(s, "farvel", "hej hej", "vi ses", "godnat")) return "Farvel, " + memory + "! Kom endelig igen.";
+  if(/^(hej|hejsa|goddag|halløj|hallo|hey)\b/.test(s)) return pick(["Hej " + memory + "!", "Hejsa! Hvad kan jeg gøre for dig?"]);
+  return null;
+}
+function tone(x){
+  if(x.includes("```")) return x;
+  const k = data.set.tone;
+  return k === "venlig" ? x + " 😊" : k === "formel" ? x.replace(/!/g, ".").replace(/\bHejsa?\b/g, "Goddag") : x;
+}
+/* ---------- Lærende model (lille ordmodel, der lærer af tekst) ---------- */
+const SEED = "Hunden løber hurtigt over marken, og katten sidder og kigger på den fra vinduet. I Danmark regner det ofte om efteråret, men nogle dage skinner solen over havet. Jeg kan godt lide at drikke varm kaffe, når det er koldt udenfor. En computer kan regne meget hurtigt, men den forstår ikke alt, hvad vi siger. Børnene leger i haven, mens de voksne laver mad i køkkenet. Bogen ligger på bordet, og lyset fra lampen gør rummet varmt og hyggeligt. Om sommeren cykler mange danskere til stranden, og de tager en kold sodavand med. Programmering handler om at løse små problemer et skridt ad gangen. Man kan lære meget af at lave fejl, hvis man tør prøve igen. Musik kan gøre en grå dag lidt lysere, og en god ven kan gøre den endnu bedre. Havet er stort og blåt, og bølgerne ruller ind mod kysten hele dagen. Når solen går ned, bliver himlen rød og orange, og fuglene flyver hjem. Det er vigtigt at hvile sig, når man er træt, og at spise noget godt, når man er sulten. En lille robot kan lære at skrive nye sætninger, hvis den får nok tekst at læse.";
+let corpus = "", M1 = null, M2 = null, ST = [];
+const nk = w => w.toLowerCase().replace(/[^a-zæøåéü0-9]/g, "");
+function resetM(){ M1 = Object.create(null); M2 = Object.create(null); ST = []; }
+function train(text){
+  const w = text.split(/\s+/).filter(Boolean);
+  for(let i = 0; i < w.length - 1; i++){
+    const a = nk(w[i]); if(!a) continue;
+    (M1[a] = M1[a] || []).push(w[i + 1]);
+    if(i > 0){ const p = nk(w[i - 1]); if(p) (M2[p + " " + a] = M2[p + " " + a] || []).push(w[i + 1]); }
+    if(i === 0 || /[.!?]$/.test(w[i - 1])) ST.push(w[i]);
+  }
+}
+function modelStatus(){
+  const s = $("ts"); if(s) s.textContent = "Modellen kender " + Object.keys(M1).length + " ord og " + Object.keys(M2).length + " sammenhænge.";
+}
+function learn(text){
+  corpus = (corpus + "\n" + text).slice(-400000); train(text);
+  L.set("abc_c_" + user, corpus); modelStatus();
+}
+function gen(prompt, n){
+  if(!ST.length) return null;
+  const w = prompt.split(/\s+/).filter(Boolean).map(nk), out = [];
+  let a = w[w.length - 2] || "", b = w[w.length - 1] || "";
+  if(!(M2[a + " " + b] || M1[b])){
+    const k = w.filter(x => x && M1[x]);
+    if(k.length){ b = pick(k); a = ""; }
+    else { const s = pick(ST); out.push(s); a = ""; b = nk(s); }
+  }
+  for(let i = 0; i < n; i++){
+    const c = M2[a + " " + b] || M1[b]; if(!c) break;
+    const x = pick(c); out.push(x); a = b; b = nk(x);
+    if(out.length >= 8 && /[.!?]$/.test(x) && Math.random() < .6) break;
+  }
+  if(!out.length) return null;
+  let r = out.join(" "); r = cap(r);
+  return /[.!?]$/.test(r) ? r : r + ".";
+}
+function projCtx(){
+  const p = data.projects.find(x => x.id === cur().pid);
+  return p ? "\n\nProjekt: " + p.name + "\nInstruktioner: " + p.instr + "\nViden:\n" + p.know.slice(0, 12000) : "";
+}
+async function ask(text, im){
+  const s = data.set, base = (s.url || "").replace(/\/+$/, "");
+  const sys = "Du er AI by Claude, en hjælpsom assistent. Svar på dansk, medmindre brugeren skriver på et andet sprog. Brug kodeblokke med ``` til kode. Når du laver en hel webside eller app, giv den som ét komplet HTML-dokument i en ```html kodeblok med al CSS og JavaScript inline. " + ({venlig:"Vær varm og venlig. ", formel:"Vær formel og saglig. "}[s.tone] || "") + ({kort:"Svar kort.", lang:"Svar udførligt."}[s.len] || "") + projCtx();
+  const msgs = cur().msgs.slice(-20).map(m => ({role: m.r === "me" ? "user" : "assistant", content: (m.img ? "[billede vedhæftet] " : "") + m.t}));
+  if(im) msgs[msgs.length - 1].content = [{type:"text", text: text || "Hvad kan du se på billedet?"}, {type:"image_url", image_url:{url: im.full}}];
+  try{
+    const r = await fetch(base + "/chat/completions", {
+      method: "POST",
+      headers: Object.assign({"Content-Type": "application/json"}, s.key ? {Authorization: "Bearer " + s.key} : {}),
+      body: JSON.stringify({model: s.name, messages: [{role: "system", content: sys}, ...msgs]})
+    });
+    const j = await r.json().catch(() => ({}));
+    if(!r.ok) return "Modellen svarede med en fejl (" + r.status + "): " + String((j.error && (j.error.message || j.error)) || "ukendt fejl") + "\nTjek adresse, nøgle og modelnavn i ⚙.";
+    return ((j.choices && j.choices[0].message.content) || "").trim() || "Modellen gav et tomt svar.";
+  }catch(e){
+    return "Jeg kunne ikke forbinde til modellen på " + base + ". Tjek at den kører, og at adresse og nøgle er rigtige i ⚙. Med Ollama skal den startes med OLLAMA_ORIGINS=*.";
+  }
+}
+async function respond(text, im){
+  if(data.set.model === "ai") return ask(text, im);
+  if(data.set.model === "laer" && !im && !/^\/?(?:kør|run)\s/i.test(text)){
+    await new Promise(r => setTimeout(r, 350));
+    const r = gen(text, {kort:12, normal:35, lang:80}[data.set.len]);
+    learn(text);
+    return r || "Jeg har ikke lært nok om det endnu. Giv mig mere tekst i ⚙, så kan jeg skrive videre.";
+  }
+  await new Promise(r => setTimeout(r, 350));
+  const ss = data.set, s = norm(text);
+  if(im) return tone("Jeg kan ikke forstå, hvad der er på billedet, men jeg kan se, at det er " + im.w + "×" + im.h + " pixels (" + (im.w > im.h ? "liggende" : im.w < im.h ? "stående" : "kvadratisk") + "), og at den dominerende farve er " + im.c + ".");
+  const rm = text.match(/^\/?(?:kør|run)\s+([\s\S]+)/i);
+  if(rm) return "Resultat:\n```\n" + run(rm[1]) + "\n```";
+  const av = lav(s); if(av) return av;
+  const k = kode(s); if(k) return k;
+  let r = rule(s, text);
+  if(r){ if(ss.len === "kort") r = r.split("\n")[0]; return tone(r); }
+  if(ss.model === "kode") return "Det er jeg ikke sat op til i Kode-modellen. Skriv fx „vis en løkke i Python“ eller „/kør 2+3“.";
+  return "Det forstod jeg ikke. Skriv „hjælp“ for at se, hvad jeg kan.";
+}
+async function send(text){
+  text = (typeof text === "string" ? text : t.value).trim();
+  const im = pend;
+  if((!text && !im) || busy) return;
+  busy = true; t.value = ""; pend = null; $("pv").innerHTML = "";
+  const w = $("wel"); if(w) w.remove();
+  const c = cur();
+  add({r:"me", t:text, img: im && im.thumb});
+  if(c.title === "Ny chat" && text){ c.title = text.slice(0, 28); list(); }
+  const ty = document.createElement("div"); ty.className = "row bot";
+  ty.innerHTML = STAR + '<div class="typing"><i></i><i></i><i></i></div>';
+  log.appendChild(ty); log.scrollTop = log.scrollHeight;
+  const out = await respond(text, im);
+  ty.remove(); add({r:"bot", t:out}); save(); speak(out); busy = false;
+}
+function speak(x){
+  if(!data.set.voice || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(x.replace(/```[\s\S]*?```/g, " kodeeksempel ").replace(/https?:\/\/\S+/g, ""));
+  u.lang = "da-DK"; speechSynthesis.speak(u);
+}
+
+/* ---------- Billede ---------- */
+function cname(r, g, b){
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+  if(l < .15) return "sort"; if(l > .88) return "hvid";
+  if(d / (1 - Math.abs(2 * l - 1)) < .15) return "grå";
+  let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  h = (h * 60 + 360) % 360;
+  return h < 15 || h >= 345 ? "rød" : h < 45 ? "orange" : h < 70 ? "gul" : h < 165 ? "grøn" : h < 200 ? "turkis" : h < 255 ? "blå" : h < 290 ? "lilla" : "pink";
+}
+function readImg(file){
+  return new Promise((ok, no) => {
+    const i = new Image();
+    i.onload = () => {
+      const k = document.createElement("canvas"); k.width = k.height = 16;
+      const x = k.getContext("2d"); x.drawImage(i, 0, 0, 16, 16);
+      const d = x.getImageData(0, 0, 16, 16).data; let r = 0, g = 0, b = 0;
+      for(let j = 0; j < d.length; j += 4){ r += d[j]; g += d[j+1]; b += d[j+2]; }
+      const n = d.length / 4;
+      const sized = (max, q) => {
+        const sc = Math.min(1, max / Math.max(i.width, i.height)), cv = document.createElement("canvas");
+        cv.width = Math.round(i.width * sc); cv.height = Math.round(i.height * sc);
+        cv.getContext("2d").drawImage(i, 0, 0, cv.width, cv.height);
+        return cv.toDataURL("image/jpeg", q);
+      };
+      ok({w:i.width, h:i.height, c:cname(r / n, g / n, b / n), thumb:sized(300, .7), full:sized(1024, .85)});
+      URL.revokeObjectURL(i.src);
+    };
+    i.onerror = () => no(); i.src = URL.createObjectURL(file);
+  });
+}
+$("at").onclick = () => $("fi").click();
+$("fi").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ""; if(!f) return;
+  try{
+    pend = await readImg(f); const pv = $("pv"); pv.innerHTML = "";
+    const i = new Image(); i.src = pend.thumb; i.alt = "Valgt billede";
+    const x = document.createElement("button"); x.type = "button"; x.textContent = "✕"; x.setAttribute("aria-label", "Fjern billede");
+    x.onclick = () => { pend = null; pv.innerHTML = ""; };
+    pv.append(i, x);
+  }catch(err){ pend = null; }
+};
+
+/* ---------- Tale ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if(!SR) $("mc").hidden = true;
+else $("mc").onclick = () => {
+  const r = new SR(), mc = $("mc"); r.lang = "da-DK";
+  r.onresult = e => send(e.results[0][0].transcript);
+  r.onend = r.onerror = () => mc.classList.remove("on");
+  mc.classList.add("on"); r.start();
+};
+
+/* ---------- Knapper og indstillinger ---------- */
+$("af").onsubmit = e => { e.preventDefault(); auth(false); };
+$("reg").onclick = () => auth(true);
+$("f").onsubmit = e => { e.preventDefault(); send(); };
+$("nc").onclick = newChat;
+$("mb").onclick = () => $("side").classList.toggle("open");
+$("st").onclick = () => $("set").hidden = false;
+$("sc").onclick = () => $("set").hidden = true;
+$("lo").onclick = logout;
+$("da").onclick = () => sure($("da"), () => { data.chats = []; $("set").hidden = true; newChat(); });
+[["md", "model"], ["tn", "tone"], ["ln", "len"]].forEach(([i, k]) => $(i).onchange = e => { data.set[k] = e.target.value; save(); });
+[["vc", "voice"]].forEach(([i, k]) => $(i).onchange = e => { data.set[k] = e.target.checked; save(); });
+[["au", "url"], ["ak", "key"], ["an", "name"]].forEach(([i, k]) => $(i).onchange = e => { data.set[k] = e.target.value.trim(); save(); });
+$("tr").onclick = () => {
+  const v = $("tx").value.trim();
+  if(v.length < 20){ $("ts").textContent = "Skriv mindst 20 tegn, så den har noget at lære af."; return; }
+  learn(v); $("tx").value = "";
+};
+$("tb").onclick = () => $("tf").click();
+$("tf").onchange = async e => { const f = e.target.files[0]; e.target.value = ""; if(f) learn(await f.text()); };
+$("tz").onclick = () => sure($("tz"), () => { corpus = SEED; resetM(); train(corpus); L.set("abc_c_" + user, corpus); modelStatus(); });
+
+function sure(b, fn){
+  if(b.dataset.arm){ clearTimeout(b._t); b.textContent = b.dataset.arm; delete b.dataset.arm; fn(); return; }
+  b.dataset.arm = b.textContent; b.textContent = "Tryk igen for at bekræfte";
+  b._t = setTimeout(() => { b.textContent = b.dataset.arm; delete b.dataset.arm; }, 3000);
+}
+function showArt(tab){
+  $("afr").hidden = tab === "code"; $("ate").hidden = tab !== "code";
+  $("aV").classList.toggle("on", tab !== "code"); $("aC").classList.toggle("on", tab === "code");
+}
+function openArt(code){ $("afr").srcdoc = code; $("ate").value = code; showArt("view"); $("art").hidden = false; }
+$("aV").onclick = () => { $("afr").srcdoc = $("ate").value; showArt("view"); };
+$("aC").onclick = () => showArt("code");
+$("aX").onclick = () => $("art").hidden = true;
+$("aD").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([$("ate").value], {type: "text/html"})); a.download = "artefakt.html"; a.click();
+};
+let editP = null;
+function renderProjects(){
+  const sel = $("pj"); sel.innerHTML = "";
+  [["", "Alle chats"], ...data.projects.map(p => [String(p.id), "Projekt: " + p.name]), ["__new", "+ Nyt projekt"]].forEach(([v, t]) => {
+    const o = document.createElement("option"); o.value = v; o.textContent = t; sel.appendChild(o);
+  });
+  sel.value = data.pid ? String(data.pid) : ""; $("pe").hidden = !data.pid;
+}
+function openProj(p){
+  editP = p; $("pn").value = p ? p.name : ""; $("pi").value = p ? p.instr : ""; $("pk").value = p ? p.know : "";
+  $("pd").hidden = !p; $("pm").hidden = false;
+}
+$("pj").onchange = e => {
+  const v = e.target.value;
+  if(v === "__new"){ renderProjects(); openProj(null); return; }
+  data.pid = v ? +v : null; save(); renderProjects(); list();
+  const c = cur();
+  if(data.pid && (!c || c.pid !== data.pid)){
+    const f = data.chats.find(x => x.pid === data.pid);
+    if(f){ data.cur = f.id; save(); openChat(); } else newChat();
+  }
+};
+$("pe").onclick = () => openProj(data.projects.find(p => p.id === data.pid));
+$("px").onclick = () => $("pm").hidden = true;
+$("pg").onclick = () => {
+  const name = $("pn").value.trim(); if(!name){ $("pn").focus(); return; }
+  const know = $("pk").value, fresh = !editP;
+  if(editP){ editP.name = name; editP.instr = $("pi").value; if(know !== editP.know && know.trim()) learn(know); editP.know = know; }
+  else { const p = {id: Date.now(), name, instr: $("pi").value, know}; data.projects.push(p); data.pid = p.id; if(know.trim()) learn(know); }
+  save(); $("pm").hidden = true; renderProjects(); list();
+  if(fresh) newChat();
+};
+$("pd").onclick = () => sure($("pd"), () => {
+  const id = editP.id; data.projects = data.projects.filter(p => p.id !== id);
+  data.chats.forEach(c => { if(c.pid === id) c.pid = null; });
+  data.pid = null; save(); $("pm").hidden = true; renderProjects(); list();
+});
+if(!L.ok){
+  $("aw").hidden = false;
+  $("aw").textContent = "Din browser kan ikke gemme data fra en lokal fil. Du kan stadig oprette en bruger og bruge den, men brugere og chats forsvinder, når siden lukkes. Åbn filen i Chrome, Edge, Firefox eller Safari for at kunne gemme.";
+}
+if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
+const cu = L.get("abc_cur", null);
+if(cu && L.get("abc_u", {})[cu]) enter(cu);
+</script>
+</body>
+</html>
